@@ -1,0 +1,23 @@
+services:
+  qdrant:
+    image: qdrant/qdrant
+    restart: always
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+    volumes:
+      - qdrant_data:/qdrant/storage
+    networks:
+      network003:
+        ipv4_address: 172.40.0.10
+
+networks:
+  network003:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.40.0.0/24
+          gateway: 172.40.0.1
+
+volumes:
+  qdrant_data:

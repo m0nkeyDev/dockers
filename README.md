@@ -1,6 +1,6 @@
 # 🗄️ Multi-Database Docker Environment
 
-This repository provides Docker container setups for both SQL and NoSQL database environments, designed to simplify local development and testing.
+This repository provides Docker container setups for both SQL, NoSQL, and Vector database environments, designed to simplify local development and testing.
 
 ## 📁 Project Structure
 
@@ -13,9 +13,12 @@ This repository provides Docker container setups for both SQL and NoSQL database
 ├── nosql
 │   └── redis
 │       └── docker-compose.yml
-└── sql
-└── postgresql
-└── docker-compose.yml
+├── sql
+│   └── postgresql
+│       └── docker-compose.yml
+├── vector
+│   └── qdrant
+│       └── docker-compose.yml
 
 ````
 
@@ -79,6 +82,13 @@ docker-compose up -d
 Access Redis Commander at: [http://localhost:8081](http://localhost:8081)
 
 ---
+
+### qDrant vector database
+
+```bash
+cd databases/vector/qdrant
+docker-compose up -d
+```
 
 ## 🧹 Cleanup
 
