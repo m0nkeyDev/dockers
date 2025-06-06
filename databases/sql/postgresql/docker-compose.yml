@@ -1,0 +1,44 @@
+services:
+
+  db:
+    image: postgres
+    restart: always
+    shm_size: 128mb
+    environment:
+      POSTGRES_DB: psql001
+      POSTGRES_USER: m0nkeyDev
+      POSTGRES_PASSWORD: pgpassword
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - db_data:/var/lib/postgresql/data/pgdata
+    networks:
+      network001:
+        ipv4_address: 172.30.0.2
+
+  pgadmin:
+    image: dpage/pgadmin4
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: m0nkeyDev@m0nkeyDev.com
+      PGADMIN_DEFAULT_PASSWORD: pgadmin_password
+    ports:
+      - "8080:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    depends_on:
+      - db
+    networks:
+      network001:
+        ipv4_address: 172.30.0.3
+
+networks:
+  network001:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.30.0.0/24
+          gateway: 172.30.0.1
+
+volumes:
+  db_data:
+  pgadmin_data:
