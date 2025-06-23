@@ -1,0 +1,55 @@
+# Use la versión más reciente de Docker Compose (p. ej., '3.8' o superior)
+version: '3.8'
+
+services:
+  n8n:
+    # Especifica la imagen de Docker para n8n
+    image: docker.n8n.io/n8nio/n8n
+    # Asigna un nombre consistente al contenedor
+    container_name: n8n
+    # Configura la política de reinicio para que el contenedor se inicie automáticamente
+    # a menos que se detenga manualmente
+    restart: unless-stopped
+
+    # Mapea el puerto 5678 del host al puerto 5678 del contenedor
+    # n8n escucha por defecto en el puerto 5678
+    ports:
+      - "5678:5678"
+
+    # Configura variables de entorno para n8n
+    environment:
+      # Habilita HTTPS y apunta a las rutas de los archivos SSL montados dentro del contenedor
+      - N8N_PROTOCOL=https
+      # IMPORTANTE: Asegúrate de que estas rutas coincidan con las rutas de destino
+      # especificadas en la sección 'volumes' para tus archivos SSL
+      - N8N_SSL_KEY=/etc/ssl/private/ssl.key
+      - N8N_SSL_CERT=/etc/ssl/certs/ssl.cert
+
+      # Otras configuraciones comunes (opcional)
+      # - TZ=Europe/Berlin # Establece la zona horaria
+      # - N8N_BASIC_AUTH_ACTIVE=true # Habilita autenticación básica (requiere usuario/contraseña)
+      # - N8N_BASIC_AUTH_USER=tu_usuario
+      # - N8N_BASIC_AUTH_PASSWORD=tu_contraseña_segura
+
+    # Configura los volúmenes
+    volumes:
+      # Volumen persistente para los datos de n8n (flujos de trabajo, configuraciones, etc.)
+      # 'n8n_data' es un volumen con nombre gestionado por Docker
+      - n8n_data:/home/node/.n8n
+
+      # Monta tu archivo de clave SSL desde el host al contenedor
+      # REEMPLAZA './path/to/your/ssl.key' con la ruta REAL de tu archivo de clave en tu máquina
+      # El segundo path '/etc/ssl/private/ssl.key' es la ruta DENTRO del contenedor
+      # ':ro' significa que el volumen es de solo lectura dentro del contenedor
+      - ./certs/ssl.key:/etc/ssl/private/ssl.key:ro
+
+      # Monta tu archivo de certificado SSL desde el host al contenedor
+      # REEMPLAZA './path/to/your/ssl.cert' con la ruta REAL de tu archivo de certificado en tu máquina
+      # El segundo path '/etc/ssl/certs/ssl.cert' es la ruta DENTRO del contenedor
+      - ./certs/ssl.cert:/etc/ssl/certs/ssl.cert:ro
+
+# Define el volumen con nombre 'n8n_data' para el almacenamiento persistente
+volumes:
+  n8n_data:
+    # Usa el driver local para el almacenamiento del volumen
+    driver: local

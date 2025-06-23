@@ -1,0 +1,51 @@
+version: '3.1'
+
+networks:
+  app_net:
+    ipam:
+      driver: default      
+      config:
+        - subnet: "172.16.10.0/24"
+
+services:
+
+  wordpress_testing:
+    image: wordpress:5.8.1-php7.3-apache
+    restart: always
+    cpu_shares: 512
+    mem_limit: 999m
+    networks:
+      app_net:
+        ipv4_address: 172.16.10.10
+
+    ports:
+      - 9191:80
+    environment:
+      WORDPRESS_DB_HOST: 172.16.10.110
+      WORDPRESS_DB_USER: "testing_wp_5svuz"
+      WORDPRESS_DB_PASSWORD: "@xm1jQ1m651yVPv&"
+      WORDPRESS_DB_NAME: "testing_wp_ihexq"      
+    volumes:
+      - wp_testing_volume:/var/www/html
+      - ./uploads.ini:/usr/local/etc/php/conf.d/uploads.ini
+
+  mysql57_testing:
+    image: mysql:5.7
+    restart: always
+    networks:
+      app_net:
+        ipv4_address: 172.16.10.110
+
+    ports:
+      - 6033:3306
+    environment:
+      MYSQL_DATABASE: "testing_wp_ihexq"
+      MYSQL_USER: "testing_wp_5svuz"
+      MYSQL_PASSWORD: "@xm1jQ1m651yVPv&"
+      MYSQL_ROOT_PASSWORD: "Byuvfgyr67u1"
+    volumes:
+      - mysql_testing_volume:/var/lib/mysql:cached
+
+volumes:
+  wp_testing_volume:
+  mysql_testing_volume:
