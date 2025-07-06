@@ -1,0 +1,94 @@
+version: '3.8'
+
+services:
+  psql_db:
+    image: postgres
+    restart: always
+    shm_size: 128mb
+    environment:
+      POSTGRES_DB: psql001
+      POSTGRES_USER: m0nkeyDev
+      POSTGRES_PASSWORD: pgpassword
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - psql_data:/var/lib/postgresql/data/pgdata
+    networks:
+      n8n-network:
+        ipv4_address: 172.20.0.8
+
+  pgadmin:
+    image: dpage/pgadmin4
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: monkeydev@containerdevs.com
+      PGADMIN_DEFAULT_PASSWORD: containerdevs_password
+    ports:
+      - "8971:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    depends_on:
+      - psql_db
+    networks:
+      n8n-network:
+        ipv4_address: 172.20.0.4
+
+  qdrant:
+    image: qdrant/qdrant
+    restart: always
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+    volumes:
+      - qdrant_data:/qdrant/storage
+    networks:
+      n8n-network:
+        ipv4_address: 172.20.0.5
+  
+  n8n:    
+    image: docker.n8n.io/n8nio/n8n
+    container_name: n8n
+    restart: unless-stopped
+
+    ports:
+      - "5678:5678"
+
+    networks:
+      n8n-network:
+        ipv4_address: 172.20.0.6
+
+    environment:
+      - N8N_HOST=192.168.110.172
+      # - N8N_PROTOCOL=https
+      # - N8N_SSL_KEY=/etc/ssl/private/ssl.key
+      # - N8N_SSL_CERT=/etc/ssl/certs/ssl.cert
+      # - TZ=America/USA
+      - N8N_SECURE_COOKIE=false
+      - N8N_BASIC_AUTH_ACTIVE=true
+      - N8N_BASIC_AUTH_USER=n8n_user
+      - N8N_BASIC_AUTH_PASSWORD=UJkhbyfuo231
+
+    volumes:
+      - n8n_data:/home/node/.n8n
+      # - ./certs/ssl.key:/etc/ssl/private/ssl.key:ro
+      # - ./certs/ssl.cert:/etc/ssl/certs/ssl.cert:ro
+
+volumes:
+  n8n_data:
+    driver: local
+  
+  psql_data:
+    driver: local
+
+  pgadmin_data:
+    driver: local    
+
+  qdrant_data:
+    driver: local  
+
+networks:
+  n8n-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+          gateway: 172.20.0.1
